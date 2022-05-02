@@ -6,15 +6,15 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.Enumeration;
 
-public class DBConnector {
+import com.bl.jdbc.util.Constants;
 
-	public static String JDBC_STR = "jdbc:mysql://localhost:3306/payroll_service";
-	public static String USERNAME = "darpan";
-	public static String PASSWORD = "darpan";
+public class PayrollDbService {
 
-	static Connection connection;
+	private Connection connection;
 
-	public static Connection getConnection() {
+	private static PayrollDbService payrollDbService;
+
+	private PayrollDbService() {
 		try {
 			Class.forName("com.mysql.cj.jdbc.Driver");
 		} catch (ClassNotFoundException e) {
@@ -23,9 +23,20 @@ public class DBConnector {
 			e.printStackTrace();
 		}
 		listDrivers();
+	}
+
+	public static PayrollDbService init() {
+		if (payrollDbService == null) {
+			payrollDbService = new PayrollDbService();
+		}
+		return payrollDbService;
+	}
+
+	public Connection getConnection() {
 		try {
 			connection = DriverManager.getConnection(
-					JDBC_STR, USERNAME, PASSWORD);
+					Constants.JDBC_STR, Constants.USERNAME,
+					Constants.PASSWORD);
 			System.out
 					.println("Connection is established.");
 			return connection;
@@ -37,18 +48,17 @@ public class DBConnector {
 		}
 	}
 
-	public static void close() {
+	public void close() {
 		if (connection != null) {
 			try {
 				connection.close();
 			} catch (SQLException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		}
 	}
 
-	private static void listDrivers() {
+	private void listDrivers() {
 		Enumeration<Driver> drivers = DriverManager
 				.getDrivers();
 
